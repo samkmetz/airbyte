@@ -146,7 +146,7 @@ public abstract class AbstractJdbcSource<Datatype> extends AbstractDbSource<Data
                                                                   final String schemaName,
                                                                   final String tableName) {
     LOGGER.info("Queueing query for table: {}", tableName);
-    return queryTable(database, String.format("SELECT %s FROM %s",
+    return queryTable(database, String.format("SELECT %s FROM %s WITH (NOLOCK)",
         enquoteIdentifierList(columnNames, getQuoteString()),
         getFullyQualifiedTableNameWithQuoting(schemaName, tableName, getQuoteString())));
   }
@@ -361,7 +361,7 @@ public abstract class AbstractJdbcSource<Datatype> extends AbstractDbSource<Data
               }
 
               final String wrappedColumnNames = getWrappedColumnNames(database, connection, columnNames, schemaName, tableName);
-              final StringBuilder sql = new StringBuilder(String.format("SELECT %s FROM %s WHERE %s %s ?",
+              final StringBuilder sql = new StringBuilder(String.format("SELECT %s FROM %s WITH (NOLOCK) WHERE %s %s ?",
                   wrappedColumnNames,
                   fullTableName,
                   quotedCursorField,
@@ -410,13 +410,13 @@ public abstract class AbstractJdbcSource<Datatype> extends AbstractDbSource<Data
     final String columnName = getCountColumnName();
     final PreparedStatement cursorRecordStatement;
     if (cursor == null) {
-      final String cursorRecordQuery = String.format("SELECT COUNT(*) AS %s FROM %s WHERE %s IS NULL",
+      final String cursorRecordQuery = String.format("SELECT COUNT(*) AS %s FROM %s WITH (NOLOCK) WHERE %s IS NULL",
           columnName,
           fullTableName,
           quotedCursorField);
       cursorRecordStatement = connection.prepareStatement(cursorRecordQuery);
     } else {
-      final String cursorRecordQuery = String.format("SELECT COUNT(*) AS %s FROM %s WHERE %s = ?",
+      final String cursorRecordQuery = String.format("SELECT COUNT(*) AS %s FROM %s WITH (NOLOCK) WHERE %s = ?",
           columnName,
           fullTableName,
           quotedCursorField);
