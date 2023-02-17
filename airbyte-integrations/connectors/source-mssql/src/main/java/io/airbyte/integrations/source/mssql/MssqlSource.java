@@ -88,7 +88,7 @@ public class MssqlSource extends AbstractJdbcSource<JDBCType> implements Source 
 
     final String newIdentifiers = getWrappedColumnNames(database, null, columnNames, schemaName, tableName);
     final String preparedSqlQuery =
-        String.format("SELECT %s FROM %s", newIdentifiers, getFullyQualifiedTableNameWithQuoting(schemaName, tableName, getQuoteString()));
+        String.format("SELECT %s FROM WITH (NOLOCK) %s", newIdentifiers, getFullyQualifiedTableNameWithQuoting(schemaName, tableName, getQuoteString()));
 
     LOGGER.info("Prepared SQL query for TableFullRefresh is: " + preparedSqlQuery);
     return queryTable(database, preparedSqlQuery);
@@ -114,7 +114,7 @@ public class MssqlSource extends AbstractJdbcSource<JDBCType> implements Source 
       final String identifierQuoteString = database.getMetaData().getIdentifierQuoteString();
       final SQLServerResultSetMetaData sqlServerResultSetMetaData = (SQLServerResultSetMetaData) database
           .queryMetadata(String
-              .format("SELECT TOP 1 %s FROM %s", // only first row is enough to get field's type
+              .format("SELECT TOP 1 %s FROM %s WITH (NOLOCK)", // only first row is enough to get field's type
                   enquoteIdentifierList(columnNames, getQuoteString()),
                   getFullyQualifiedTableNameWithQuoting(schemaName, tableName, getQuoteString())));
 
